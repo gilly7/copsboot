@@ -1,16 +1,16 @@
 package com.example.copsboot.user;
 
+import com.example.orm.jpa.AbstractEntity;
 import com.sun.istack.NotNull;
 
 import javax.persistence.*;
 import java.util.Set;
-import java.util.UUID;
 
 @Entity
 @Table(name = "copsboot_user")
-public class User {
+public class User extends AbstractEntity<UserId> {
     @Id
-    private UUID id;
+    private UserId id;
     private String email;
     private String password;
     @ElementCollection(fetch = FetchType.EAGER)
@@ -21,8 +21,8 @@ public class User {
     protected User() {
     }
 
-    public User(UUID id, String email, String password, Set<UserRole> roles) {
-        this.id = id;
+    public User(UserId id, String email, String password, Set<UserRole> roles) {
+        super(id);
         this.email = email;
         this.password = password;
         this.roles = roles;
