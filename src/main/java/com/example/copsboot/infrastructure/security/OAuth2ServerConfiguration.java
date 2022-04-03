@@ -73,11 +73,11 @@ public class OAuth2ServerConfiguration {
         @Override
         public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
             clients.inMemory() // <5>
-                    .withClient("copsboot-mobile-client") //<6>
+                    .withClient("copsboot-mobile-client") //Use the client ID from the configuration
                     .authorizedGrantTypes("password", "refresh_token") //<7>
                     .scopes("mobile_app") //<8>
                     .resourceIds(RESOURCE_ID)
-                    .secret(passwordEncoder.encode("ccUyb6vS4S8nxfbKPCrN")); //<9>
+                    .secret(passwordEncoder.encode("ccUyb6vS4S8nxfbKPCrN")); //Use the client secret from the configuration
         }
 
         @Override
