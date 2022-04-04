@@ -25,9 +25,8 @@ public class OAuth2ServerConfiguration {
 
     private static final String RESOURCE_ID = "copsboot-service";
 
-    //tag::resource-server[]
     @Configuration
-    @EnableResourceServer //<1>
+    @EnableResourceServer
     @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
     protected static class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
 
@@ -36,48 +35,53 @@ public class OAuth2ServerConfiguration {
             resources.resourceId(RESOURCE_ID);
         }
 
+        //tag::configure[]
         @Override
         public void configure(HttpSecurity http) throws Exception {
 
             http.authorizeRequests()
-                    .antMatchers(HttpMethod.OPTIONS, "/api/**").permitAll() //<2>
+                    .antMatchers(HttpMethod.OPTIONS, "/api/**").permitAll()
                     .and()
-                    .antMatcher("/api/**").authorizeRequests()
-                    .anyRequest().authenticated(); //<3>
+                    .antMatcher("/api/**")
+                    .authorizeRequests()
+                    .antMatchers(HttpMethod.POST, "/api/users").permitAll() //<1>
+                    .anyRequest().authenticated();
         }
+        //end::configure[]
     }
-    //end::resource-server[]
 
-    //tag::authorization-server[]
     @Configuration
-    @EnableAuthorizationServer //<1>
+    @EnableAuthorizationServer
     protected static class AuthorizationServerConfiguration extends AuthorizationServerConfigurerAdapter {
 
         @Autowired
         private AuthenticationManager authenticationManager;
 
         @Autowired
-        private UserDetailsService userDetailsService; //<2>
+        private UserDetailsService userDetailsService;
 
         @Autowired
-        private PasswordEncoder passwordEncoder; //<3>
+        private PasswordEncoder passwordEncoder;
 
         @Autowired
-        private TokenStore tokenStore; //<4>
+        private TokenStore tokenStore;
+
+        @Autowired
+        private SecurityConfiguration securityConfiguration;
 
         @Override
         public void configure(AuthorizationServerSecurityConfigurer security) throws Exception {
-            security.passwordEncoder(passwordEncoder); //<3>
+            security.passwordEncoder(passwordEncoder);
         }
 
         @Override
         public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
-            clients.inMemory() // <5>
-                    .withClient("copsboot-mobile-client") //Use the client ID from the configuration
-                    .authorizedGrantTypes("password", "refresh_token") //<7>
-                    .scopes("mobile_app") //<8>
+            clients.inMemory()
+                    .withClient(securityConfiguration.getMobileAppClientId())
+                    .authorizedGrantTypes("password", "refresh_token")
+                    .scopes("mobile_app")
                     .resourceIds(RESOURCE_ID)
-                    .secret(passwordEncoder.encode("ccUyb6vS4S8nxfbKPCrN")); //Use the client secret from the configuration
+                    .secret(passwordEncoder.encode(securityConfiguration.getMobileAppClientSecret()));
         }
 
         @Override
@@ -87,9 +91,7 @@ public class OAuth2ServerConfiguration {
                     .userDetailsService(userDetailsService);
         }
     }
-    //end::authorization-server[]
 
-    //tag::web-security[]
     @Configuration
     public static class WebSecurityGlobalConfig extends WebSecurityConfigurerAdapter {
 
@@ -100,5 +102,4 @@ public class OAuth2ServerConfiguration {
         }
 
     }
-    //end::web-security[]
 }

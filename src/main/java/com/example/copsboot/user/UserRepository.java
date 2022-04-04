@@ -8,5 +8,7 @@ import java.util.UUID;
 public interface UserRepository extends CrudRepository<User, UUID>, UserRepositoryCustom {
 
     Optional<User> findByEmailIgnoreCase(String email);
+
+    Optional<User> findById(UserId userId);
 }
 //end::class[]
